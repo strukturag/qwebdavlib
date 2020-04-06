@@ -72,10 +72,12 @@ QWebdavItem::QWebdavItem() :
 {
 }
 
-QWebdavItem::QWebdavItem(const QString &path, const QString &name,
+QWebdavItem::QWebdavItem(const QString& id, const QString &path, const QString &name,
                          const QString &ext, bool dirOrFile,
-                         const QDateTime &lastModified, quint64 size) :
+                         const QDateTime &lastModified, quint64 size, bool hasPreview) :
    m_dirOrFile(dirOrFile)
+  ,m_id(id)
+  ,m_hasPreview(hasPreview)
   ,m_path(path)
   ,m_name(name)
   ,m_ext(ext)
@@ -125,6 +127,16 @@ QWebdavItem::QWebdavItem(const QString &path, const QString &name,
 bool QWebdavItem::isDir() const
 {
     return m_dirOrFile;
+}
+
+QString QWebdavItem::id() const
+{
+  return m_id;
+}
+
+bool QWebdavItem::hasPreview() const
+{
+  return m_hasPreview;
 }
 
 QString QWebdavItem::path() const

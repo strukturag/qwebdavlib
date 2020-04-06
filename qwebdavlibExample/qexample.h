@@ -3,9 +3,9 @@
 
 #include <QObject>
 
-#include <qwebdav.h>
-#include <qwebdavdirparser.h>
-#include <qwebdavitem.h>
+#include "../qwebdavlib/qwebdav.h"
+#include "../qwebdavlib/qwebdavdirparser.h"
+#include "../qwebdavlib/qwebdavitem.h"
 
 class QExample : public QObject
 {

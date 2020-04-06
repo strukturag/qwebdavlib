@@ -85,17 +85,18 @@ public:
     bool isFinished() const;
     QString path() const;
 
-signals:
+Q_SIGNALS:
     void finished();
     void errorChanged(QString);
 
-public slots:
+public Q_SLOTS:
     void abort();
 
-protected slots:
+protected Q_SLOTS:
     //void error(QNetworkReply::NetworkError code);
     void replyFinished();
     void replyDeleteLater(QNetworkReply* reply);
+    void HandleSslErrors(const QList<QSslError>& errors);
 
 protected:
     void parseMultiResponse( const QByteArray &data );

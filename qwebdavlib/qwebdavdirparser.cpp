@@ -69,6 +69,15 @@ QWebdavDirParser::~QWebdavDirParser()
     }
 }
 
+void QWebdavDirParser::HandleSslErrors(const QList<QSslError>& errors) {
+  for (int i=0; i < errors.size(); i++) {
+    const QSslError& error = errors.at(i);
+    qDebug() << "SSL error: " << error.errorString() << "\n";
+  }
+
+  m_reply->ignoreSslErrors();
+}
+
 bool QWebdavDirParser::listDirectory(QWebdav *pWebdav, const QString &path)
 {
     if (m_busy)
@@ -94,6 +103,8 @@ bool QWebdavDirParser::listDirectory(QWebdav *pWebdav, const QString &path)
 
     m_reply = pWebdav->list(path);
     connect(m_reply, SIGNAL(finished()), this, SLOT(replyFinished()));
+    QObject::connect(m_reply, &QNetworkReply::sslErrors,
+                     this, &QWebdavDirParser::HandleSslErrors);
 
     if (!m_dirList.isEmpty())
         m_dirList.clear();
@@ -209,7 +220,7 @@ void QWebdavDirParser::replyFinished()
         if ( (m_reply->error() != QNetworkReply::NoError) && (m_reply->error() != QNetworkReply::OperationCanceledError) ) {
             QString errStr = m_reply->errorString();
             errStr = errStr.right(errStr.size()-errStr.indexOf("server replied:")+1);
-            emit errorChanged(errStr);
+            /*emit*/ errorChanged(errStr);
     #ifdef DEBUG_WEBDAV
             qDebug() << "   Reply has error. Error:" << m_reply->errorString() << "Code:" << m_reply->error();
     #endif
@@ -262,7 +273,7 @@ void QWebdavDirParser::replyDeleteLater(QNetworkReply* reply)
         m_busy = false;
     }
 
-    emit finished();
+    /*emit*/ finished();
 
 #ifdef DEBUG_WEBDAV
     qDebug() << "QWebdavDirParser::replyDeleteLater()      reply->deleteLater() done";
@@ -350,6 +361,8 @@ void QWebdavDirParser::davParsePropstats(const QString &path, const QDomNodeList
         return;
 
 
+    QString fileid;
+    bool hasPreview = false;
     QString path_;
     QString name;
     QString ext;
@@ -414,12 +427,20 @@ void QWebdavDirParser::davParsePropstats(const QString &path, const QDomNodeList
             if (property.isNull())
                 continue;
 
-            if ( property.namespaceURI() != "DAV:" ) {
+            if ( property.namespaceURI() != "DAV:" &&
+                 property.namespaceURI() != "http://owncloud.org/ns" &&
+                 property.namespaceURI() != "http://nextcloud.org/ns") {
                 // parse only DAV namespace properties
                 continue;
             }
 
-            if ( property.tagName() == "getcontentlength" )
+            if (property.tagName() == "fileid") {
+              fileid = property.text();
+            }
+            else if (property.tagName() == "has-preview") {
+              hasPreview = property.text() == "true";
+            }
+            else if ( property.tagName() == "getcontentlength" )
                 size = property.text().toULongLong();
             else if ( property.tagName() == "getlastmodified" )
                 lastModified = parseDateTime( property.text(), property.attribute("dt") );
@@ -491,9 +512,9 @@ void QWebdavDirParser::davParsePropstats(const QString &path, const QDomNodeList
                                  mimeType, isExecutable,
                                  source));
 #else
-    m_dirList.append(QWebdavItem(path_, name,
+    m_dirList.append(QWebdavItem(fileid, path_, name,
                                  ext, dirOrFile,
-                                 lastModified, size));
+                                 lastModified, size, hasPreview));
 #endif
 }
 

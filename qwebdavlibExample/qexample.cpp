@@ -3,7 +3,7 @@
 QExample::QExample(QObject *parent) :
     QObject(parent)
 {
-    w.setConnectionSettings(QWebdav::HTTP, "127.0.0.1", "/", "USERNAME", "PASSWORD", 80);
+    w.setConnectionSettings(QWebdav::HTTPS, "raijin", "/nextcloud/public.php/webdav/", "bGQrTjGYYMAGdX3", "PASSWORD", 443);
     connect(&p, SIGNAL(finished()), this, SLOT(printList()));
     connect(&p, SIGNAL(errorChanged(QString)), this, SLOT(printError(QString)));
     connect(&w, SIGNAL(errorChanged(QString)), this, SLOT(printError(QString)));

@@ -60,9 +60,9 @@ class QWEBDAVSHARED_EXPORT QWebdavItem
 public:
     QWebdavItem();
 
-    QWebdavItem(const QString &path, const QString &name,
+    QWebdavItem(const QString& id, const QString &path, const QString &name,
                 const QString &ext, bool dirOrFile,
-                const QDateTime &lastModified, quint64 size);
+                const QDateTime &lastModified, quint64 size, bool hasPreview);
 
 #ifdef QWEBDAVITEM_EXTENDED_PROPERTIES
     QWebdavItem(const QString &path, const QString &name,
@@ -75,6 +75,8 @@ public:
 #endif
 
     bool isDir() const;
+    bool hasPreview() const;
+    QString id() const;
     QString path() const;
     QString name() const;
     QString ext() const;
@@ -97,6 +99,8 @@ public:
 
 protected:
     bool m_dirOrFile;
+    bool m_hasPreview;
+    QString m_id;
     QString m_path;
     QString m_name;
     QString m_ext;

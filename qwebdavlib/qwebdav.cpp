@@ -49,6 +49,8 @@
 ****************************************************************************/
 
 #include "qwebdav.h"
+#include <QString>
+#include <QtGlobal>
 
 QWebdav::QWebdav (QObject *parent) : QNetworkAccessManager(parent)
   ,m_rootPath()
@@ -224,7 +226,7 @@ void QWebdav::replyError(QNetworkReply::NetworkError)
         return;
     }
 
-    emit errorChanged(reply->errorString());
+    /*emit*/ errorChanged(reply->errorString());
 }
 
 void QWebdav::provideAuthenication(QNetworkReply *reply, QAuthenticator *authenticator)
@@ -233,14 +235,14 @@ void QWebdav::provideAuthenication(QNetworkReply *reply, QAuthenticator *authent
     qDebug() << "QWebdav::authenticationRequired()";
     QVariantHash opts = authenticator->options();
     QVariant optVar;
-    foreach(optVar, opts) {
+    Q_FOREACH(optVar, opts) {
         qDebug() << "QWebdav::authenticationRequired()  option == " << optVar.toString();
     }
 #endif
 
     if (reply == m_authenticator_lastReply) {
         reply->abort();
-        emit errorChanged("WebDAV server requires authentication. Check WebDAV share settings!");
+        /*emit*/ errorChanged("WebDAV server requires authentication. Check WebDAV share settings!");
         reply->deleteLater();
         reply=0;
     }
@@ -259,16 +261,16 @@ void QWebdav::sslErrors(QNetworkReply *reply, const QList<QSslError> &errors)
 
     QSslCertificate sslcert = errors[0].certificate();
 
-    if ( ( sslcert.digest(QCryptographicHash::Md5) == m_sslCertDigestMd5 ) &&
-         ( sslcert.digest(QCryptographicHash::Sha1) == m_sslCertDigestSha1) )
-    {
+    //if ( ( sslcert.digest(QCryptographicHash::Md5) == m_sslCertDigestMd5 ) &&
+    //     ( sslcert.digest(QCryptographicHash::Sha1) == m_sslCertDigestSha1) )
+    //{
         // user accepted this SSL certifcate already ==> ignore SSL errors
         reply->ignoreSslErrors();
-    } else {
+    //} else {
         // user has to check the SSL certificate and has to accept manually
-        emit checkSslCertifcate(errors);
-        reply->abort();
-    }
+    //    /*emit*/ checkSslCertifcate(errors);
+    //    reply->abort();
+    //}
 }
 
 QString QWebdav::digestToHex(const QByteArray &input)
@@ -319,7 +321,7 @@ QNetworkReply* QWebdav::createRequest(const QString& method, QNetworkRequest& re
     qDebug() << "   " << method << " " << req.url().toString();
     QList<QByteArray> rawHeaderList = req.rawHeaderList();
     QByteArray rawHeaderItem;
-    foreach(rawHeaderItem, rawHeaderList) {
+    Q_FOREACH(rawHeaderItem, rawHeaderList) {
         qDebug() << "   " << rawHeaderItem << ": " << req.rawHeader(rawHeaderItem);
     }
 #endif
@@ -338,7 +340,7 @@ QNetworkReply* QWebdav::createRequest(const QString& method, QNetworkRequest& re
     qDebug() << "   " << method << " " << req.url().toString();
     QList<QByteArray> rawHeaderList = req.rawHeaderList();
     QByteArray rawHeaderItem;
-    foreach(rawHeaderItem, rawHeaderList) {
+    Q_FOREACH(rawHeaderItem, rawHeaderList) {
         qDebug() << "   " << rawHeaderItem << ": " << req.rawHeader(rawHeaderItem);
     }
 #endif
@@ -360,6 +362,11 @@ QNetworkReply* QWebdav::list(const QString& path, int depth)
 {
     QWebdav::PropNames query;
     QStringList props;
+    QStringList ocProps;
+    QStringList ncProps;
+
+    ocProps << "fileid";
+    ncProps << "has-preview";
 
     // Small set of properties
     // href in response contains also the name
@@ -386,6 +393,8 @@ QNetworkReply* QWebdav::list(const QString& path, int depth)
     // Additionally, there are also properties for locking
 
     query["DAV:"] = props;
+    query["http://owncloud.org/ns"] = ocProps;
+    query["http://nextcloud.org/ns"] = ncProps;
 
     return propfind(path, query, depth);
 }
@@ -495,9 +504,10 @@ QNetworkReply* QWebdav::propfind(const QString& path, const QWebdav::PropNames& 
     query = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>";
     query += "<D:propfind xmlns:D=\"DAV:\" >";
     query += "<D:prop>";
-    foreach (QString ns, props.keys())
+    QString ns;
+    Q_FOREACH (ns, props.keys())
     {
-        foreach (const QString key, props[ns])
+        Q_FOREACH (const QString key, props[ns])
             if (ns == "DAV:")
                 query += "<D:" + key + "/>";
             else
@@ -529,7 +539,7 @@ QNetworkReply* QWebdav::proppatch(const QString& path, const QWebdav::PropValues
     query = "<?xml version=\"1.0\" encoding=\"utf-8\" ?>";
     query += "<D:proppatch xmlns:D=\"DAV:\" >";
     query += "<D:prop>";
-    foreach (QString ns, props.keys())
+    Q_FOREACH (QString ns, props.keys())
     {
         QMap < QString , QVariant >::const_iterator i;
 

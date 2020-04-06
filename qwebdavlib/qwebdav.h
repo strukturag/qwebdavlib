@@ -124,12 +124,12 @@ public:
     //! converts a digest from hexadecimal format ( XX:XX:XX:... with X in [0-9,A-F] ) to QByteArray
     static QByteArray hexToDigest(const QString &input);
 
-signals:
+Q_SIGNALS:
     //! signal is emitted when an SSL error occured, the SSL certificates have to be checked
     void checkSslCertifcate(const QList<QSslError> &errors);
     void errorChanged(QString error);
 
-protected slots:
+protected Q_SLOTS:
     void replyReadyRead();
     void replyFinished(QNetworkReply*);
     void replyDeleteLater(QNetworkReply*);
