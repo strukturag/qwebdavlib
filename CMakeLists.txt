@@ -13,8 +13,10 @@ set(CMAKE_AUTORCC ON)
 
 # FIXME do we need this?
 #ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
+# for windows build
+ADD_DEFINITIONS(-DQWEBDAV_LIBRARY)
 
-add_library(${PROJECT_NAME}
+add_library(${PROJECT_NAME} STATIC
     qwebdavlib/qnaturalsort.cpp
     qwebdavlib/qnaturalsort.h
     qwebdavlib/qwebdav.cpp
@@ -25,7 +27,7 @@ add_library(${PROJECT_NAME}
     qwebdavlib/qwebdavitem.cpp
     qwebdavlib/qwebdavitem.h
 )
-set(CMAKE_VERBOSE_MAKEFILE ON)
+#set(CMAKE_VERBOSE_MAKEFILE ON)
 
 # for the SingleApplication class
 set(QAPPLICATION_CLASS QApplication CACHE STRING "Inheritance class for SingleApplication")
