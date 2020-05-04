@@ -11,8 +11,6 @@ set(CMAKE_AUTOUIC ON)
 # Resource compiler
 set(CMAKE_AUTORCC ON)
 
-# FIXME do we need this?
-#ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
 # for windows build
 ADD_DEFINITIONS(-DQWEBDAV_LIBRARY)
 
@@ -49,10 +47,3 @@ target_link_libraries(${PROJECT_NAME} ${Qt5Core_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${Qt5Network_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${Qt5Widgets_LIBRARIES})
 target_link_libraries(${PROJECT_NAME} ${Qt5Xml_LIBRARIES})
-
-# # FIXME this might cause problems - qknight
-# if (UNIX)
-#     target_compile_options(${PROJECT_NAME} PRIVATE -Werror -Wall -Wextra -Werror=return-type
-#             -Wno-unknown-pragmas -Wno-unused-parameter -Wno-sign-compare -Wno-reorder -Wno-unused-variable
-#             -Wno-unused-but-set-variable)
-# endif ()
